@@ -3,11 +3,12 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Tabs } from "expo-router";
 import { Platform, StyleSheet, Text, View } from "react-native";
 import { Colors } from "../../utils/theme";
-
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 type MaterialIconName = React.ComponentProps<typeof MaterialIcons>["name"];
 
 function TabIcon({ focused, icon, label }: { focused: boolean; icon: MaterialIconName; label: string }) {
   const iconColor = focused ? Colors.accentPurple : Colors.textMuted;
+  
 
   return (
     <View style={styles.tabItem}>
@@ -34,11 +35,14 @@ function TabIcon({ focused, icon, label }: { focused: boolean; icon: MaterialIco
 }
 
 export default function TabsLayout() {
+  const insets = useSafeAreaInsets();
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarStyle: styles.tabBar,
+        tabBarStyle: {...styles.tabBar,
+          paddingBottom: insets.bottom || 20,
+        },
         tabBarShowLabel: false,
         tabBarBackground: () => (
           <View style={styles.tabBarBg}>
@@ -96,7 +100,6 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: Colors.border,
     height: Platform.OS === "ios" ? 85 : 68,
-    paddingBottom: Platform.OS === "ios" ? 20 : 8,
     paddingTop: 8,
     marginTop: -1,
     elevation: 0,

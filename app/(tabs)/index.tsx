@@ -21,6 +21,9 @@ import { ToolCard } from "../../components/ToolCard";
 import { useConverterStore } from "../../store/converterStore";
 import { useNotesStore } from "../../store/notesStore";
 import { Colors, ToolCards } from "../../utils/theme";
+import MaterialIcons from "@react-native-vector-icons/material-icons";
+type MaterialIconName = React.ComponentProps<typeof MaterialIcons>["name"];
+
 
 function ActivityItem({
   icon,
@@ -129,7 +132,7 @@ export default function HomeScreen() {
             <Text style={styles.title}>Manage Your Tools</Text>
           </View>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>A</Text>
+           <MaterialIcons name="account-circle" size={40} color={Colors.accentPurple} />
           </View>
         </Animated.View>
 
@@ -264,7 +267,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: Colors.accentPurple,
+    backgroundColor: Colors.border,
     alignItems: "center",
     justifyContent: "center",
   },
