@@ -1,98 +1,328 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import React, { useEffect } from "react";
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withDelay,
+  Easing,
+} from "react-native-reanimated";
+import { ToolCard } from "../../components/ToolCard";
+import { Colors, ToolCards } from "../../utils/theme";
+import { useNotesStore } from "../../store/notesStore";
+import { useConverterStore } from "../../store/converterStore";
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+function ActivityItem({
+  icon,
+  label,
+  status,
+  statusColor,
+  progressColor,
+  progress,
+}: {
+  icon: string;
+  label: string;
+  status: string;
+  statusColor: string;
+  progressColor: string;
+  progress: number;
+}) {
+  return (
+    <View style={actStyles.item}>
+      <View style={actStyles.row}>
+        <Text style={actStyles.icon}>{icon}</Text>
+        <Text style={actStyles.label} numberOfLines={1}>{label}</Text>
+        <View style={[actStyles.badge, { backgroundColor: `${statusColor}22`, borderColor: `${statusColor}44` }]}>
+          <Text style={[actStyles.badgeText, { color: statusColor }]}>{status}</Text>
+        </View>
+      </View>
+      <View style={actStyles.progressTrack}>
+        <View style={[actStyles.progressBar, { width: `${progress}%`, backgroundColor: progressColor }]} />
+      </View>
+    </View>
+  );
+}
+
+const actStyles = StyleSheet.create({
+  item: { marginBottom: 16 },
+  row: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 8 },
+  icon: { fontSize: 16 },
+  label: { flex: 1, fontSize: 14, color: Colors.textPrimary, fontWeight: "500" },
+  badge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 20,
+    borderWidth: 1,
+  },
+  badgeText: { fontSize: 12, fontWeight: "600" },
+  progressTrack: {
+    height: 3,
+    backgroundColor: Colors.bgElevated,
+    borderRadius: 2,
+    overflow: "hidden",
+  },
+  progressBar: { height: "100%", borderRadius: 2 },
+});
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const router = useRouter();
+  const { notes, loadNotes } = useNotesStore();
+  const { history, loadHistory } = useConverterStore();
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  const opacity = useSharedValue(0);
+  const translateY = useSharedValue(20);
+
+  const fadeStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [{ translateY: translateY.value }],
+  }));
+
+  useEffect(() => {
+    loadNotes();
+    loadHistory();
+    opacity.value = withDelay(100, withTiming(1, { duration: 600, easing: Easing.out(Easing.quad) }));
+    translateY.value = withDelay(100, withTiming(0, { duration: 600, easing: Easing.out(Easing.quad) }));
+  }, []);
+
+  const lastConversion = history[0];
+  const lastNote = notes[0];
+
+  return (
+    <SafeAreaView style={styles.safe} edges={["top"]}>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header */}
+        <Animated.View style={[styles.header, fadeStyle]}>
+          <View>
+            <Text style={styles.greeting}>Welcome back 👋</Text>
+            <Text style={styles.title}>Manage Your Tools</Text>
+          </View>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>A</Text>
+          </View>
+        </Animated.View>
+
+        {/* Tool Cards Grid */}
+        <Animated.View style={[styles.grid, fadeStyle]}>
+          <View style={styles.row}>
+            {ToolCards.slice(0, 2).map((card) => (
+              <ToolCard
+                key={card.id}
+                title={card.title}
+                subtitle={card.subtitle}
+                icon={card.icon}
+                gradient={card.gradient}
+                onPress={() => router.push(card.route as any)}
+              />
+            ))}
+          </View>
+          <View style={styles.row}>
+            <ToolCard
+              title={ToolCards[2].title}
+              subtitle={ToolCards[2].subtitle}
+              icon={ToolCards[2].icon}
+              gradient={ToolCards[2].gradient}
+              onPress={() => router.push(ToolCards[2].route as any)}
+            />
+            <TouchableOpacity
+              style={styles.moreCard}
+              activeOpacity={0.7}
+              onPress={() => router.push("/(tabs)/converter")}
+            >
+              <Text style={styles.moreIcon}>⚙️</Text>
+              <Text style={styles.moreTitle}>More Tools</Text>
+              <Text style={styles.moreArrow}>›</Text>
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
+
+        {/* Ongoing Activity */}
+        <Animated.View style={[styles.section, fadeStyle]}>
+          <Text style={styles.sectionTitle}>Ongoing Activity</Text>
+          {lastConversion ? (
+            <ActivityItem
+              icon="🔄"
+              label={`Converted ${lastConversion.inputValue} ${lastConversion.from} to ${lastConversion.to}`}
+              status="Completed"
+              statusColor={Colors.accentPurple}
+              progressColor={Colors.accentPurple}
+              progress={100}
+            />
+          ) : (
+            <ActivityItem
+              icon="🔄"
+              label="No conversions yet — try the converter!"
+              status="Idle"
+              statusColor={Colors.textMuted}
+              progressColor={Colors.bgElevated}
+              progress={0}
+            />
+          )}
+          {lastNote ? (
+            <ActivityItem
+              icon="📝"
+              label={`Note: "${lastNote.title}"`}
+              status="In Progress"
+              statusColor={Colors.accentAmber}
+              progressColor={Colors.accentAmber}
+              progress={60}
+            />
+          ) : (
+            <ActivityItem
+              icon="📝"
+              label="No notes yet — capture your thoughts!"
+              status="Idle"
+              statusColor={Colors.textMuted}
+              progressColor={Colors.bgElevated}
+              progress={0}
+            />
+          )}
+        </Animated.View>
+
+        {/* Stats Row */}
+        <Animated.View style={[styles.statsRow, fadeStyle]}>
+          <View style={styles.statCard}>
+            <Text style={styles.statNumber}>{notes.length}</Text>
+            <Text style={styles.statLabel}>Notes</Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.statCard}>
+            <Text style={styles.statNumber}>{history.length}</Text>
+            <Text style={styles.statLabel}>Conversions</Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.statCard}>
+            <Text style={styles.statNumber}>3</Text>
+            <Text style={styles.statLabel}>Tools</Text>
+          </View>
+        </Animated.View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  safe: { flex: 1, backgroundColor: Colors.bgPrimary },
+  scroll: { flex: 1 },
+  content: { paddingBottom: 32 },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    paddingBottom: 20,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  greeting: {
+    fontSize: 15,
+    color: Colors.textSecondary,
+    fontWeight: "500",
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  title: {
+    fontSize: 28,
+    fontWeight: "800",
+    color: Colors.textPrimary,
+    letterSpacing: -0.8,
+    marginTop: 2,
+  },
+  avatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: Colors.accentPurple,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarText: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#1E1B4B",
+  },
+  grid: {
+    paddingHorizontal: 16,
+    gap: 12,
+    marginBottom: 28,
+  },
+  row: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  moreCard: {
+    flex: 1,
+    backgroundColor: Colors.bgCard,
+    borderRadius: 20,
+    padding: 18,
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: Colors.border,
+    minHeight: 100,
+    gap: 6,
+  },
+  moreIcon: { fontSize: 28 },
+  moreTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: Colors.textPrimary,
+    letterSpacing: -0.2,
+  },
+  moreArrow: {
+    position: "absolute",
+    top: 16,
+    right: 16,
+    fontSize: 18,
+    color: Colors.textMuted,
+    fontWeight: "600",
+  },
+  section: {
+    paddingHorizontal: 20,
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: "800",
+    color: Colors.textPrimary,
+    letterSpacing: -0.5,
+    marginBottom: 16,
+  },
+  statsRow: {
+    flexDirection: "row",
+    marginHorizontal: 20,
+    backgroundColor: Colors.bgCard,
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  statCard: {
+    flex: 1,
+    alignItems: "center",
+  },
+  statNumber: {
+    fontSize: 26,
+    fontWeight: "800",
+    color: Colors.accentPurple,
+    letterSpacing: -1,
+  },
+  statLabel: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    fontWeight: "500",
+    marginTop: 2,
+  },
+  statDivider: {
+    width: 1,
+    backgroundColor: Colors.border,
+    marginHorizontal: 8,
   },
 });
