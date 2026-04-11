@@ -1,7 +1,7 @@
 import MaterialIcons from "@react-native-vector-icons/material-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { Tabs } from "expo-router";
-import { Platform, StyleSheet, Text, View } from "react-native";
+import { Platform, StyleSheet, Text, View, useWindowDimensions } from "react-native";
 import { Colors } from "../../utils/theme";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 type MaterialIconName = React.ComponentProps<typeof MaterialIcons>["name"];
@@ -36,12 +36,22 @@ function TabIcon({ focused, icon, label }: { focused: boolean; icon: MaterialIco
 
 export default function TabsLayout() {
   const insets = useSafeAreaInsets();
+  const { height: deviceHeight } = useWindowDimensions();
+
+  const baseTabHeight = deviceHeight < 700 ? 56 : deviceHeight > 900 ? 68 : 62;
+  const bottomInset = Math.max(insets.bottom, Platform.OS === "ios" ? 10 : 8);
+  const tabBarHeight = baseTabHeight + bottomInset;
+  const tabBarTopPadding = deviceHeight < 700 ? 6 : 8;
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarStyle: {...styles.tabBar,
-          paddingBottom: insets.bottom || 20,
+        tabBarStyle: {
+          ...styles.tabBar,
+          height: tabBarHeight,
+          paddingBottom: bottomInset,
+          paddingTop: tabBarTopPadding,
         },
         tabBarShowLabel: false,
         tabBarBackground: () => (
@@ -99,8 +109,6 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
     borderTopWidth: 1,
     borderTopColor: Colors.border,
-    height: Platform.OS === "ios" ? 85 : 68,
-    paddingTop: 8,
     marginTop: -1,
     elevation: 0,
   },
