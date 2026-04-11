@@ -1,9 +1,14 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { Tabs } from "expo-router";
 import { Platform, StyleSheet, Text, View } from "react-native";
+import MaterialIcons from "@react-native-vector-icons/material-icons";
 import { Colors } from "../../utils/theme";
 
-function TabIcon({ focused, icon, label }: { focused: boolean; icon: string; label: string }) {
+type MaterialIconName = React.ComponentProps<typeof MaterialIcons>["name"];
+
+function TabIcon({ focused, icon, label }: { focused: boolean; icon: MaterialIconName; label: string }) {
+  const iconColor = focused ? Colors.accentPurple : Colors.textMuted;
+
   return (
     <View style={styles.tabItem}>
       {focused ? (
@@ -11,14 +16,17 @@ function TabIcon({ focused, icon, label }: { focused: boolean; icon: string; lab
           colors={["#A78BFA33", "#A78BFA11"]}
           style={styles.activePill}
         >
-          <Text style={styles.icon}>{icon}</Text>
+          <MaterialIcons name={icon} size={20} color={iconColor} />
         </LinearGradient>
       ) : (
         <View style={styles.inactivePill}>
-          <Text style={[styles.icon, styles.iconInactive]}>{icon}</Text>
+          <MaterialIcons name={icon} size={20} color={iconColor} style={styles.iconInactive} />
         </View>
       )}
-      <Text style={[styles.tabLabel, focused && styles.tabLabelActive]}>
+      <Text
+        numberOfLines={1}
+        style={[styles.tabLabel, focused && styles.tabLabelActive]}
+      >
         {label}
       </Text>
     </View>
@@ -47,7 +55,7 @@ export default function TabsLayout() {
         options={{
           tabBarAccessibilityLabel: "Home tab",
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} icon="🏠" label="Home" />
+            <TabIcon focused={focused} icon="home" label="Home" />
           ),
         }}
       />
@@ -56,7 +64,7 @@ export default function TabsLayout() {
         options={{
           tabBarAccessibilityLabel: "Converter tab",
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} icon="🔄" label="Convert" />
+            <TabIcon focused={focused} icon="swap-horiz" label="Convert" />
           ),
         }}
       />
@@ -65,7 +73,7 @@ export default function TabsLayout() {
         options={{
           tabBarAccessibilityLabel: "Calculator tab",
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} icon="🧮" label="Calc" />
+            <TabIcon focused={focused} icon="calculate" label="Calc" />
           ),
         }}
       />
@@ -74,7 +82,7 @@ export default function TabsLayout() {
         options={{
           tabBarAccessibilityLabel: "Notes tab",
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} icon="📝" label="Notes" />
+            <TabIcon focused={focused} icon="edit-note" label="Notes" />
           ),
         }}
       />
@@ -90,6 +98,7 @@ const styles = StyleSheet.create({
     height: Platform.OS === "ios" ? 85 : 68,
     paddingBottom: Platform.OS === "ios" ? 20 : 8,
     paddingTop: 8,
+    marginTop: -1,
     elevation: 0,
   },
   tabBarBg: {
@@ -117,17 +126,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  icon: {
-    fontSize: 18,
-  },
   iconInactive: {
     opacity: 0.5,
   },
   tabLabel: {
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: "600",
     color: Colors.textMuted,
-    letterSpacing: 0.3,
+    letterSpacing: 0.1,
+    includeFontPadding: false,
   },
   tabLabelActive: {
     color: Colors.accentPurple,
