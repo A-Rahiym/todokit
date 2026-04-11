@@ -1,50 +1,76 @@
-# Welcome to your Expo app 👋
+# TodoKit
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+TodoKit is a multi-tool mobile app built with Expo and React Native. It combines three everyday utilities in one place:
 
-## Get started
+- Unit Converter
+- Calculator
+- Notes
 
-1. Install dependencies
+The app is organized with tab navigation and a modern, animated UI.
 
-   ```bash
-   npm install
-   ```
+## Features
 
-2. Start the app
+- Convert values across common categories (length, temperature, weight, currency)
+- Perform quick arithmetic calculations
+- Create, edit, search, and delete notes
+- Persistent local data storage with AsyncStorage
+- Haptic feedback and subtle motion interactions
 
-   ```bash
-   npx expo start
-   ```
+## Tech Stack
 
-In the output, you'll find options to open the app in a
+- Expo + React Native
+- Expo Router (file-based navigation)
+- TypeScript
+- Zustand (state management)
+- React Native Reanimated
+- Expo Linear Gradient
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## How To Run
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+1. Install dependencies:
 
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+1. Start development server:
 
-## Learn more
+```bash
+npm run start
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+1. Run on your preferred target:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+npm run android
+# or
+npm run ios
+# or
+npm run web
+```
 
-## Join the community
+## Project Structure (Summary)
 
-Join our community of developers creating universal apps.
+- app/: Route screens and navigation layout
+  - app/(tabs)/: Main tab screens (Home, Converter, Calculator, Notes)
+- components/: Shared UI building blocks
+- features/: Feature-specific UI parts
+  - features/converter/
+  - features/calculator/
+  - features/notes/
+- store/: Zustand stores and persisted app state
+- utils/: Core logic (conversions, calculator helpers, theme constants)
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Useful Scripts
+
+- npm run start: Start Expo dev server
+- npm run android: Open Android target
+- npm run ios: Open iOS target
+- npm run web: Run web target
+- npm run lint: Run lint checks
+- npm run reset-project: Reset app scaffolding
+
+## Notes
+
+- This project uses file-based routing via Expo Router.
+- Recommended Node and package manager versions should match your Expo SDK tooling.

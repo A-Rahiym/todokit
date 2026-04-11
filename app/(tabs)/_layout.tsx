@@ -1,7 +1,7 @@
+import MaterialIcons from "@react-native-vector-icons/material-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { Tabs } from "expo-router";
 import { Platform, StyleSheet, Text, View } from "react-native";
-import MaterialIcons from "@react-native-vector-icons/material-icons";
 import { Colors } from "../../utils/theme";
 
 type MaterialIconName = React.ComponentProps<typeof MaterialIcons>["name"];

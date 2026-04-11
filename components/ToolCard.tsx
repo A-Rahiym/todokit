@@ -1,6 +1,7 @@
 import React from "react";
 import { TouchableOpacity, Text, View, StyleSheet, Dimensions } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import Svg, { Path } from "react-native-svg";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -56,6 +57,31 @@ export function ToolCard({ title, subtitle, icon, gradient, onPress, size = "nor
         end={{ x: 1, y: 1 }}
         style={styles.gradient}
       >
+        <View pointerEvents="none" style={styles.linesOverlay}>
+          <Svg width="100%" height="100%" viewBox="0 0 220 170" preserveAspectRatio="none">
+            <Path
+              d="M-10 135 C 40 110, 80 155, 140 128 C 170 113, 195 120, 230 95"
+              stroke="rgba(255,255,255,0.20)"
+              strokeWidth="1.6"
+              fill="none"
+              strokeLinecap="round"
+            />
+            <Path
+              d="M-5 95 C 35 75, 75 115, 130 90 C 170 73, 200 82, 230 62"
+              stroke="rgba(165,243,252,0.22)"
+              strokeWidth="1.4"
+              fill="none"
+              strokeLinecap="round"
+            />
+            <Path
+              d="M-12 58 C 30 45, 75 78, 118 60 C 152 46, 188 55, 235 36"
+              stroke="rgba(255,255,255,0.14)"
+              strokeWidth="1.2"
+              fill="none"
+              strokeLinecap="round"
+            />
+          </Svg>
+        </View>
         <View style={styles.inner}>
           <View style={styles.iconRow}>
             <Text style={styles.icon}>{icon}</Text>
@@ -88,9 +114,14 @@ const styles = StyleSheet.create({
     minHeight: 160,
     justifyContent: "space-between",
   },
+  linesOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    opacity: 0.9,
+  },
   inner: {
     flex: 1,
     justifyContent: "space-between",
+    zIndex: 1,
   },
   iconRow: {
     flexDirection: "row",
