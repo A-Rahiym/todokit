@@ -1,24 +1,26 @@
+import { useRouter } from "expo-router";
 import React, { useEffect } from "react";
 import {
-  View,
-  Text,
+  Platform,
   ScrollView,
   StyleSheet,
+  Text,
   TouchableOpacity,
+  View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
 import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withDelay,
   Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withSequence,
+  withTiming,
 } from "react-native-reanimated";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { ToolCard } from "../../components/ToolCard";
-import { Colors, ToolCards } from "../../utils/theme";
-import { useNotesStore } from "../../store/notesStore";
 import { useConverterStore } from "../../store/converterStore";
+import { useNotesStore } from "../../store/notesStore";
+import { Colors, ToolCards } from "../../utils/theme";
 
 function ActivityItem({
   icon,
@@ -79,10 +81,17 @@ export default function HomeScreen() {
 
   const opacity = useSharedValue(0);
   const translateY = useSharedValue(20);
+  const snackOpacity = useSharedValue(0);
+  const snackTranslateY = useSharedValue(14);
 
   const fadeStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
     transform: [{ translateY: translateY.value }],
+  }));
+
+  const snackStyle = useAnimatedStyle(() => ({
+    opacity: snackOpacity.value,
+    transform: [{ translateY: snackTranslateY.value }],
   }));
 
   useEffect(() => {
@@ -90,10 +99,21 @@ export default function HomeScreen() {
     loadHistory();
     opacity.value = withDelay(100, withTiming(1, { duration: 600, easing: Easing.out(Easing.quad) }));
     translateY.value = withDelay(100, withTiming(0, { duration: 600, easing: Easing.out(Easing.quad) }));
-  }, []);
+  }, [loadHistory, loadNotes, opacity, translateY]);
 
   const lastConversion = history[0];
   const lastNote = notes[0];
+
+  const handleMoreToolsPress = () => {
+    snackOpacity.value = withSequence(
+      withTiming(1, { duration: 180 }),
+      withDelay(1200, withTiming(0, { duration: 180 }))
+    );
+    snackTranslateY.value = withSequence(
+      withTiming(0, { duration: 220 }),
+      withDelay(1200, withTiming(14, { duration: 180 }))
+    );
+  };
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
@@ -138,7 +158,7 @@ export default function HomeScreen() {
             <TouchableOpacity
               style={styles.moreCard}
               activeOpacity={0.7}
-              onPress={() => router.push("/(tabs)/converter")}
+              onPress={handleMoreToolsPress}
             >
               <Text style={styles.moreIcon}>⚙️</Text>
               <Text style={styles.moreTitle}>More Tools</Text>
@@ -208,6 +228,10 @@ export default function HomeScreen() {
           </View>
         </Animated.View>
       </ScrollView>
+
+      <Animated.View pointerEvents="none" style={[styles.snackBar, snackStyle]}>
+        <Text style={styles.snackText}>More tools coming soon</Text>
+      </Animated.View>
     </SafeAreaView>
   );
 }
@@ -324,5 +348,24 @@ const styles = StyleSheet.create({
     width: 1,
     backgroundColor: Colors.border,
     marginHorizontal: 8,
+  },
+  snackBar: {
+    position: "absolute",
+    left: 20,
+    right: 20,
+    bottom: Platform.OS === "ios" ? 96 : 78,
+    backgroundColor: "rgba(21, 24, 36, 0.96)",
+    borderWidth: 1,
+    borderColor: "rgba(167, 139, 250, 0.35)",
+    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+  },
+  snackText: {
+    color: Colors.textPrimary,
+    fontSize: 13,
+    fontWeight: "600",
+    textAlign: "center",
+    letterSpacing: 0.1,
   },
 });

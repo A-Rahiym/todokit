@@ -1,13 +1,13 @@
-import React from "react";
-import { TouchableOpacity, Text, View, StyleSheet, Dimensions } from "react-native";
+import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
-import Svg, { Path } from "react-native-svg";
+import React from "react";
+import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Animated, {
-  useSharedValue,
   useAnimatedStyle,
+  useSharedValue,
   withSpring,
 } from "react-native-reanimated";
-import * as Haptics from "expo-haptics";
+import Svg, { Path } from "react-native-svg";
 
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = (width - 48) / 2;
