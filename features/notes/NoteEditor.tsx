@@ -78,17 +78,6 @@ export function NoteEditor({ visible, note, onSave, onClose }: NoteEditorProps) 
               autoFocus
               returnKeyType="next"
             />
-            {/* <View style={styles.divider} />
-            <TouchableOpacity
-              style={styles.completionRow}
-              onPress={handleToggleCompleted}
-              activeOpacity={0.8}
-            >
-              <View style={[styles.checkbox, completed && styles.checkboxChecked]}>
-                {completed ? <Text style={styles.checkMark}>✓</Text> : null}
-              </View>
-              <Text style={styles.completionLabel}>Mark as completed</Text>
-            </TouchableOpacity> */}
             <View style={styles.divider} />
             <TextInput
               style={styles.contentInput}
