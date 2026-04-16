@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from "react";
+import * as Haptics from "expo-haptics";
+import React, { useEffect, useState } from "react";
 import {
-  View,
-  Text,
-  TextInput,
-  Modal,
-  TouchableOpacity,
-  StyleSheet,
   KeyboardAvoidingView,
+  Modal,
   Platform,
   ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { Colors } from "../../utils/theme";
 import { Note } from "../../store/notesStore";
-import * as Haptics from "expo-haptics";
+import { Colors } from "../../utils/theme";
 
 interface NoteEditorProps {
   visible: boolean;
@@ -50,7 +50,7 @@ export function NoteEditor({ visible, note, onSave, onClose }: NoteEditorProps) 
             <TouchableOpacity onPress={onClose} style={styles.cancelBtn}>
               <Text style={styles.cancelText}>Cancel</Text>
             </TouchableOpacity>
-            <Text style={styles.heading}>{note ? "Edit Note" : "New Note"}</Text>
+            <Text style={styles.heading}>{note ? "Edit Task" : "New Task"}</Text>
             <TouchableOpacity
               onPress={handleSave}
               style={[styles.saveBtn, !title.trim() && styles.saveBtnDisabled]}
@@ -63,7 +63,7 @@ export function NoteEditor({ visible, note, onSave, onClose }: NoteEditorProps) 
           <ScrollView style={styles.body} keyboardShouldPersistTaps="handled">
             <TextInput
               style={styles.titleInput}
-              placeholder="Note title..."
+              placeholder="Task title..."
               placeholderTextColor={Colors.textMuted}
               value={title}
               onChangeText={setTitle}

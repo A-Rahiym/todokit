@@ -1,10 +1,11 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
+import { readStorageItem, writeStorageItem } from "../utils/storage";
 
 export interface Note {
   id: string;
   title: string;
   content: string;
+  completed: boolean;
   createdAt: number;
   updatedAt: number;
 }
@@ -14,30 +15,16 @@ interface NotesState {
   isLoaded: boolean;
   storageError: string | null;
   loadNotes: () => Promise<void>;
-  addNote: (title: string, content: string) => Promise<void>;
+  addNote: (title: string, content: string, completed?: boolean) => Promise<void>;
   updateNote: (id: string, title: string, content: string) => Promise<void>;
+  toggleNote: (id: string) => Promise<void>;
   deleteNote: (id: string) => Promise<void>;
 }
 
 const STORAGE_KEY = "@prodigykit_notes";
-const memoryStorage = new Map<string, string>();
 
-async function readStorageItem(key: string): Promise<string | null> {
-  try {
-    return await AsyncStorage.getItem(key);
-  } catch {
-    return memoryStorage.get(key) ?? null;
-  }
-}
-
-async function writeStorageItem(key: string, value: string): Promise<boolean> {
-  try {
-    await AsyncStorage.setItem(key, value);
-    return true;
-  } catch {
-    memoryStorage.set(key, value);
-    return false;
-  }
+function generateNoteId(): string {
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
 export const useNotesStore = create<NotesState>((set, get) => ({
@@ -48,7 +35,14 @@ export const useNotesStore = create<NotesState>((set, get) => ({
   loadNotes: async () => {
     try {
       const raw = await readStorageItem(STORAGE_KEY);
-      const notes = raw ? JSON.parse(raw) : [];
+      const notes = raw
+        ? (JSON.parse(raw) as Array<Omit<Note, "completed"> & Partial<Pick<Note, "completed">>>).map(
+            (note) => ({
+              ...note,
+              completed: note.completed ?? false,
+            })
+          )
+        : [];
       set({ notes, isLoaded: true, storageError: null });
     } catch {
       set({
@@ -60,11 +54,12 @@ export const useNotesStore = create<NotesState>((set, get) => ({
     }
   },
 
-  addNote: async (title, content) => {
+  addNote: async (title, content, completed = false) => {
     const note: Note = {
-      id: Date.now().toString(),
+      id: generateNoteId(),
       title,
       content,
+      completed,
       createdAt: Date.now(),
       updatedAt: Date.now(),
     };
@@ -82,6 +77,20 @@ export const useNotesStore = create<NotesState>((set, get) => ({
   updateNote: async (id, title, content) => {
     const notes = get().notes.map((n) =>
       n.id === id ? { ...n, title, content, updatedAt: Date.now() } : n
+    );
+    set({ notes });
+    const persisted = await writeStorageItem(STORAGE_KEY, JSON.stringify(notes));
+    if (!persisted) {
+      set({
+        storageError:
+          "Notes storage is unavailable. Changes will stay in memory for this session.",
+      });
+    }
+  },
+
+  toggleNote: async (id) => {
+    const notes = get().notes.map((n) =>
+      n.id === id ? { ...n, completed: !n.completed, updatedAt: Date.now() } : n
     );
     set({ notes });
     const persisted = await writeStorageItem(STORAGE_KEY, JSON.stringify(notes));

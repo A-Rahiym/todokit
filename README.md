@@ -4,7 +4,7 @@ TodoKit is a multi-tool mobile app built with Expo and React Native. It combines
 
 - Unit Converter
 - Calculator
-- Notes
+- Task/Checklist Manager
 
 The app is organized with tab navigation and a modern, animated UI.
 
@@ -12,7 +12,9 @@ The app is organized with tab navigation and a modern, animated UI.
 
 - Convert values across common categories (length, temperature, weight, currency)
 - Perform quick arithmetic calculations
-- Create, edit, search, and delete notes
+- Create, edit, search, and delete tasks
+- Mark tasks as completed with a one-tap checkbox toggle
+- Filter tasks by All, Active, or Completed
 - Persistent local data storage with AsyncStorage
 - Haptic feedback and subtle motion interactions
 
@@ -52,12 +54,12 @@ npm run web
 ## Project Structure (Summary)
 
 - app/: Route screens and navigation layout
-  - app/(tabs)/: Main tab screens (Home, Converter, Calculator, Notes)
+  - app/(tabs)/: Main tab screens (Home, Converter, Calculator, Tasks)
 - components/: Shared UI building blocks
 - features/: Feature-specific UI parts
   - features/converter/
   - features/calculator/
-  - features/notes/
+  - features/notes/ (task/checklist UI)
 - store/: Zustand stores and persisted app state
 - utils/: Core logic (conversions, calculator helpers, theme constants)
 
@@ -74,3 +76,4 @@ npm run web
 
 - This project uses file-based routing via Expo Router.
 - Recommended Node and package manager versions should match your Expo SDK tooling.
+- Task completion and filters persist locally with AsyncStorage, with in-memory fallback when storage is unavailable.

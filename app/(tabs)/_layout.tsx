@@ -1,9 +1,10 @@
 import MaterialIcons from "@react-native-vector-icons/material-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { Tabs } from "expo-router";
+import React from "react";
 import { Platform, StyleSheet, Text, View, useWindowDimensions } from "react-native";
-import { Colors } from "../../utils/theme";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Colors } from "../../utils/theme";
 type MaterialIconName = React.ComponentProps<typeof MaterialIcons>["name"];
 
 function TabIcon({ focused, icon, label }: { focused: boolean; icon: MaterialIconName; label: string }) {
@@ -94,9 +95,9 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="notes"
         options={{
-          tabBarAccessibilityLabel: "Notes tab",
+          tabBarAccessibilityLabel: "Tasks tab",
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} icon="edit-note" label="Notes" />
+            <TabIcon focused={focused} icon="edit-note" label="Tasks" />
           ),
         }}
       />
