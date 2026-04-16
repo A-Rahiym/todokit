@@ -17,26 +17,33 @@ import { Colors } from "../../utils/theme";
 interface NoteEditorProps {
   visible: boolean;
   note?: Note | null;
-  onSave: (title: string, content: string) => void;
+  onSave: (title: string, content: string, completed: boolean) => void;
   onClose: () => void;
 }
 
 export function NoteEditor({ visible, note, onSave, onClose }: NoteEditorProps) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [completed, setCompleted] = useState(false);
 
   useEffect(() => {
     if (visible) {
       setTitle(note?.title ?? "");
       setContent(note?.content ?? "");
+      setCompleted(note?.completed ?? false);
     }
   }, [visible, note]);
 
   const handleSave = () => {
     if (!title.trim()) return;
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    onSave(title.trim(), content.trim());
+    onSave(title.trim(), content.trim(), completed);
     onClose();
+  };
+
+  const handleToggleCompleted = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setCompleted((prev) => !prev);
   };
 
   return (
@@ -71,6 +78,17 @@ export function NoteEditor({ visible, note, onSave, onClose }: NoteEditorProps) 
               autoFocus
               returnKeyType="next"
             />
+            {/* <View style={styles.divider} />
+            <TouchableOpacity
+              style={styles.completionRow}
+              onPress={handleToggleCompleted}
+              activeOpacity={0.8}
+            >
+              <View style={[styles.checkbox, completed && styles.checkboxChecked]}>
+                {completed ? <Text style={styles.checkMark}>✓</Text> : null}
+              </View>
+              <Text style={styles.completionLabel}>Mark as completed</Text>
+            </TouchableOpacity> */}
             <View style={styles.divider} />
             <TextInput
               style={styles.contentInput}
@@ -155,6 +173,37 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: Colors.border,
     marginBottom: 16,
+  },
+  completionRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    paddingBottom: 12,
+  },
+  checkbox: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 2,
+    borderColor: Colors.borderSubtle,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: Colors.bgElevated,
+  },
+  checkboxChecked: {
+    borderColor: Colors.accentMint,
+    backgroundColor: `${Colors.accentMint}33`,
+  },
+  checkMark: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: Colors.accentMint,
+    lineHeight: 14,
+  },
+  completionLabel: {
+    fontSize: 15,
+    color: Colors.textPrimary,
+    fontWeight: "500",
   },
   contentInput: {
     fontSize: 16,

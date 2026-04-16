@@ -83,11 +83,11 @@ export default function NotesScreen() {
     setEditorVisible(true);
   };
 
-  const handleSave = (title: string, content: string) => {
+  const handleSave = (title: string, content: string, completed: boolean) => {
     if (editingNote) {
-      updateNote(editingNote.id, title, content);
+      updateNote(editingNote.id, title, content, completed);
     } else {
-      addNote(title, content);
+      addNote(title, content, completed);
     }
   };
 

@@ -150,8 +150,7 @@ const styles = StyleSheet.create({
   },
   accentBar: {
     width: 4,
-    flex: 1,
-    borderRadius: 999,
+    backgroundColor: Colors.accentMint,
   },
   content: {
     flex: 1,

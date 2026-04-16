@@ -16,7 +16,12 @@ interface NotesState {
   storageError: string | null;
   loadNotes: () => Promise<void>;
   addNote: (title: string, content: string, completed?: boolean) => Promise<void>;
-  updateNote: (id: string, title: string, content: string) => Promise<void>;
+  updateNote: (
+    id: string,
+    title: string,
+    content: string,
+    completed?: boolean
+  ) => Promise<void>;
   toggleNote: (id: string) => Promise<void>;
   deleteNote: (id: string) => Promise<void>;
 }
@@ -74,9 +79,17 @@ export const useNotesStore = create<NotesState>((set, get) => ({
     }
   },
 
-  updateNote: async (id, title, content) => {
+  updateNote: async (id, title, content, completed) => {
     const notes = get().notes.map((n) =>
-      n.id === id ? { ...n, title, content, updatedAt: Date.now() } : n
+      n.id === id
+        ? {
+            ...n,
+            title,
+            content,
+            completed: completed ?? n.completed,
+            updatedAt: Date.now(),
+          }
+        : n
     );
     set({ notes });
     const persisted = await writeStorageItem(STORAGE_KEY, JSON.stringify(notes));
