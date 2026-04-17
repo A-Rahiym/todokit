@@ -49,7 +49,7 @@ export function NoteEditor({ visible, note, onSave, onClose }: NoteEditorProps) 
   return (
     <Modal visible={visible} animationType="slide" transparent>
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={styles.overlay}
       >
         <View style={styles.sheet}>

@@ -151,7 +151,7 @@ export default function ConverterScreen() {
         )}
 
         {/* History */}
-        {history.length > 0 && (
+        {/* {history.length > 0 && (
           <View style={styles.historySection}>
             <Text style={styles.historyTitle}>Recent</Text>
             {history.slice(0, 5).map((rec) => (
@@ -180,7 +180,7 @@ export default function ConverterScreen() {
               </TouchableOpacity>
             ))}
           </View>
-        )}
+        )} */}
       </ScrollView>
     </SafeAreaView>
   );
