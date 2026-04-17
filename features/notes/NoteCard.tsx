@@ -69,9 +69,7 @@ export function NoteCard({ note, onDelete, onToggle, onPress }: NoteCardProps) {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     onToggle(note.id);
   };
-
   const accent = getAccentColor();
-
   return (
     <AnimatedTouchable
       onPress={() => {

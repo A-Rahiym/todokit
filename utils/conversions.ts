@@ -40,7 +40,6 @@ export const UNITS: Record<Category, UnitOption[]> = {
     { label: "Australian Dollar", value: "AUD", symbol: "A$" },
   ],
 };
-
 // Conversion to base unit (SI)
 const TO_BASE: Record<string, number> = {
   // Length → meters
