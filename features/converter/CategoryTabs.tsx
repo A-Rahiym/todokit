@@ -1,6 +1,6 @@
-import * as Haptics from "expo-haptics";
+import { CategoryItem } from "@/features/converter/categoryItem";
 import React from "react";
-import { ScrollView, StyleSheet, Text, TouchableOpacity } from "react-native";
+import { ScrollView, StyleSheet } from "react-native";
 import { Category } from "../../utils/conversions";
 import { Colors } from "../../utils/theme";
 
@@ -24,22 +24,17 @@ export function CategoryTabs({ selected, onSelect }: CategoryTabsProps) {
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={styles.container}
     >
-      {CATEGORIES.map((cat) => (
-        <TouchableOpacity
-          key={cat.value}
-          onPress={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            onSelect(cat.value);
-          }}
-          style={[styles.tab, selected === cat.value && styles.tabActive]}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.icon}>{cat.icon}</Text>
-          <Text style={[styles.label, selected === cat.value && styles.labelActive]}>
-            {cat.label}
-          </Text>
-        </TouchableOpacity>
-      ))}
+      {
+        CATEGORIES.map((cat) => (
+          <CategoryItem
+            key={cat.value}
+            value={cat.value}
+            icon={cat.icon}
+            label={cat.label}
+            selected={selected}
+            Press={() => {onSelect(cat.value)}}
+          />
+        ))}
     </ScrollView>
   );
 }

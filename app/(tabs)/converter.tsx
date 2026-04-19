@@ -1,3 +1,4 @@
+import { HistoryItem } from "@/features/converter/historyItem";
 import * as Haptics from "expo-haptics";
 import React, { useEffect, useState } from "react";
 import {
@@ -155,29 +156,19 @@ export default function ConverterScreen() {
           <View style={styles.historySection}>
             <Text style={styles.historyTitle}>Recent</Text>
             {history.slice(0, 5).map((rec) => (
-              <TouchableOpacity
+              <HistoryItem
                 key={rec.id}
-                style={styles.historyItem}
-                onPress={() => {
-                  const units = UNITS[rec.category as Category];
-                  const from = units.find((u) => u.value === rec.from);
-                  const to = units.find((u) => u.value === rec.to);
-                  if (from && to) {
-                    setCategory(rec.category as Category);
-                    setTimeout(() => {
-                      setFromUnit(from);
-                      setToUnit(to);
-                      setInputValue(rec.inputValue);
-                    }, 50);
-                  }
-                }}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.historyIcon}>🕐</Text>
-                <Text style={styles.historyText}>
-                  {rec.inputValue} {rec.from} → {rec.result} {rec.to}
-                </Text>
-              </TouchableOpacity>
+                From={rec.from}
+                To={rec.to}
+                category={rec.category}
+                result={rec.result}
+                timestamp={rec.timestamp}
+                UNIT={UNITS}
+                setCategory={setCategory}
+                setFromUnit={setFromUnit}
+                setToUnit={setToUnit}
+                setInputValue={setInputValue}
+              />
             ))}
           </View>
         )}
