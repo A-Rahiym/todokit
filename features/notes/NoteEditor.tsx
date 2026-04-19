@@ -1,48 +1,55 @@
-import React, { useState, useEffect } from "react";
+import * as Haptics from "expo-haptics";
+import React, { useEffect, useState } from "react";
 import {
-  View,
-  Text,
-  TextInput,
-  Modal,
-  TouchableOpacity,
-  StyleSheet,
   KeyboardAvoidingView,
+  Modal,
   Platform,
   ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { Colors } from "../../utils/theme";
 import { Note } from "../../store/notesStore";
-import * as Haptics from "expo-haptics";
+import { Colors } from "../../utils/theme";
 
 interface NoteEditorProps {
   visible: boolean;
   note?: Note | null;
-  onSave: (title: string, content: string) => void;
+  onSave: (title: string, content: string, completed: boolean) => void;
   onClose: () => void;
 }
 
 export function NoteEditor({ visible, note, onSave, onClose }: NoteEditorProps) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [completed, setCompleted] = useState(false);
 
   useEffect(() => {
     if (visible) {
       setTitle(note?.title ?? "");
       setContent(note?.content ?? "");
+      setCompleted(note?.completed ?? false);
     }
   }, [visible, note]);
 
   const handleSave = () => {
     if (!title.trim()) return;
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    onSave(title.trim(), content.trim());
+    onSave(title.trim(), content.trim(), completed);
     onClose();
+  };
+
+  const handleToggleCompleted = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setCompleted((prev) => !prev);
   };
 
   return (
     <Modal visible={visible} animationType="slide" transparent>
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={styles.overlay}
       >
         <View style={styles.sheet}>
@@ -50,7 +57,7 @@ export function NoteEditor({ visible, note, onSave, onClose }: NoteEditorProps) 
             <TouchableOpacity onPress={onClose} style={styles.cancelBtn}>
               <Text style={styles.cancelText}>Cancel</Text>
             </TouchableOpacity>
-            <Text style={styles.heading}>{note ? "Edit Note" : "New Note"}</Text>
+            <Text style={styles.heading}>{note ? "Edit Task" : "New Task"}</Text>
             <TouchableOpacity
               onPress={handleSave}
               style={[styles.saveBtn, !title.trim() && styles.saveBtnDisabled]}
@@ -63,7 +70,7 @@ export function NoteEditor({ visible, note, onSave, onClose }: NoteEditorProps) 
           <ScrollView style={styles.body} keyboardShouldPersistTaps="handled">
             <TextInput
               style={styles.titleInput}
-              placeholder="Note title..."
+              placeholder="Task title..."
               placeholderTextColor={Colors.textMuted}
               value={title}
               onChangeText={setTitle}
@@ -155,6 +162,37 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: Colors.border,
     marginBottom: 16,
+  },
+  completionRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    paddingBottom: 12,
+  },
+  checkbox: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 2,
+    borderColor: Colors.borderSubtle,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: Colors.bgElevated,
+  },
+  checkboxChecked: {
+    borderColor: Colors.accentMint,
+    backgroundColor: `${Colors.accentMint}33`,
+  },
+  checkMark: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: Colors.accentMint,
+    lineHeight: 14,
+  },
+  completionLabel: {
+    fontSize: 15,
+    color: Colors.textPrimary,
+    fontWeight: "500",
   },
   contentInput: {
     fontSize: 16,

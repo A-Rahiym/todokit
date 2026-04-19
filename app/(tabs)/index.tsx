@@ -1,81 +1,28 @@
+import MaterialIcons from "@react-native-vector-icons/material-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect } from "react";
 import {
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import Animated, {
-  Easing,
-  useAnimatedStyle,
-  useSharedValue,
-  withDelay,
-  withSequence,
-  withTiming,
+    Easing,
+    useAnimatedStyle,
+    useSharedValue,
+    withDelay,
+    withSequence,
+    withTiming,
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { ActivityItem } from "../../components/ActivityItem";
 import { ToolCard } from "../../components/ToolCard";
 import { useConverterStore } from "../../store/converterStore";
 import { useNotesStore } from "../../store/notesStore";
 import { Colors, ToolCards } from "../../utils/theme";
-import MaterialIcons from "@react-native-vector-icons/material-icons";
-type MaterialIconName = React.ComponentProps<typeof MaterialIcons>["name"];
-
-
-function ActivityItem({
-  icon,
-  label,
-  status,
-  statusColor,
-  progressColor,
-  progress,
-}: {
-  icon: string;
-  label: string;
-  status: string;
-  statusColor: string;
-  progressColor: string;
-  progress: number;
-}) {
-  return (
-    <View style={actStyles.item}>
-      <View style={actStyles.row}>
-        <Text style={actStyles.icon}>{icon}</Text>
-        <Text style={actStyles.label} numberOfLines={1}>{label}</Text>
-        <View style={[actStyles.badge, { backgroundColor: `${statusColor}22`, borderColor: `${statusColor}44` }]}>
-          <Text style={[actStyles.badgeText, { color: statusColor }]}>{status}</Text>
-        </View>
-      </View>
-      <View style={actStyles.progressTrack}>
-        <View style={[actStyles.progressBar, { width: `${progress}%`, backgroundColor: progressColor }]} />
-      </View>
-    </View>
-  );
-}
-
-const actStyles = StyleSheet.create({
-  item: { marginBottom: 16 },
-  row: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 8 },
-  icon: { fontSize: 16 },
-  label: { flex: 1, fontSize: 14, color: Colors.textPrimary, fontWeight: "500" },
-  badge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 20,
-    borderWidth: 1,
-  },
-  badgeText: { fontSize: 12, fontWeight: "600" },
-  progressTrack: {
-    height: 3,
-    backgroundColor: Colors.bgElevated,
-    borderRadius: 2,
-    overflow: "hidden",
-  },
-  progressBar: { height: "100%", borderRadius: 2 },
-});
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -106,6 +53,9 @@ export default function HomeScreen() {
 
   const lastConversion = history[0];
   const lastNote = notes[0];
+  const completedCount = notes.filter((note) => note.completed).length;
+  const totalCount = notes.length;
+  const tasksProgress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
   const handleMoreToolsPress = () => {
     snackOpacity.value = withSequence(
@@ -164,7 +114,7 @@ export default function HomeScreen() {
               onPress={handleMoreToolsPress}
             >
               <Text style={styles.moreIcon}>⚙️</Text>
-              <Text style={styles.moreTitle}>More Tools</Text>
+              <Text style={styles.moreTitle}>Coming Soon</Text>
               <Text style={styles.moreArrow}>›</Text>
             </TouchableOpacity>
           </View>
@@ -194,17 +144,17 @@ export default function HomeScreen() {
           )}
           {lastNote ? (
             <ActivityItem
-              icon="📝"
-              label={`Note: "${lastNote.title}"`}
-              status="In Progress"
+              icon="✅"
+              label={`Task: "${lastNote.title}"`}
+              status={lastNote.completed ? "Completed" : "In Progress"}
               statusColor={Colors.accentAmber}
               progressColor={Colors.accentAmber}
-              progress={60}
+              progress={tasksProgress}
             />
           ) : (
             <ActivityItem
-              icon="📝"
-              label="No notes yet — capture your thoughts!"
+              icon="✅"
+              label="No tasks yet — add your first checklist item!"
               status="Idle"
               statusColor={Colors.textMuted}
               progressColor={Colors.bgElevated}
@@ -216,8 +166,8 @@ export default function HomeScreen() {
         {/* Stats Row */}
         <Animated.View style={[styles.statsRow, fadeStyle]}>
           <View style={styles.statCard}>
-            <Text style={styles.statNumber}>{notes.length}</Text>
-            <Text style={styles.statLabel}>Notes</Text>
+            <Text style={styles.statNumber}>{`${completedCount}/${totalCount}`}</Text>
+            <Text style={styles.statLabel}>Tasks</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statCard}>
@@ -233,7 +183,7 @@ export default function HomeScreen() {
       </ScrollView>
 
       <Animated.View pointerEvents="none" style={[styles.snackBar, snackStyle]}>
-        <Text style={styles.snackText}>More tools coming soon</Text>
+        <Text style={styles.snackText}>More tools are coming soon</Text>
       </Animated.View>
     </SafeAreaView>
   );

@@ -1,4 +1,3 @@
-import { HistoryItem } from "@/features/converter/historyItem";
 import * as Haptics from "expo-haptics";
 import React, { useEffect, useState } from "react";
 import {
@@ -152,7 +151,7 @@ export default function ConverterScreen() {
         )}
 
         {/* History */}
-        {history.length > 0 && (
+        {/* {history.length > 0 && (
           <View style={styles.historySection}>
             <Text style={styles.historyTitle}>Recent</Text>
             {history.slice(0, 5).map((rec) => (
@@ -171,7 +170,7 @@ export default function ConverterScreen() {
               />
             ))}
           </View>
-        )}
+        )} */}
       </ScrollView>
     </SafeAreaView>
   );

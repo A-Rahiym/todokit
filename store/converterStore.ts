@@ -1,5 +1,9 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
+import {
+  readStorageItem,
+  removeStorageItem,
+  writeStorageItem,
+} from "../utils/storage";
 
 export interface ConversionRecord {
   id: string;
@@ -21,35 +25,6 @@ interface ConverterState {
 }
 
 const STORAGE_KEY = "@prodigykit_converter_history";
-const memoryStorage = new Map<string, string>();
-
-async function readStorageItem(key: string): Promise<string | null> {
-  try {
-    return await AsyncStorage.getItem(key);
-  } catch {
-    return memoryStorage.get(key) ?? null;
-  }
-}
-
-async function writeStorageItem(key: string, value: string): Promise<boolean> {
-  try {
-    await AsyncStorage.setItem(key, value);
-    return true;
-  } catch {
-    memoryStorage.set(key, value);
-    return false;
-  }
-}
-
-async function removeStorageItem(key: string): Promise<boolean> {
-  try {
-    await AsyncStorage.removeItem(key);
-    return true;
-  } catch {
-    memoryStorage.delete(key);
-    return false;
-  }
-}
 
 export const useConverterStore = create<ConverterState>((set, get) => ({
   history: [],

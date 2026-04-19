@@ -1,17 +1,18 @@
 import * as Haptics from "expo-haptics";
 import React, { useEffect, useState } from "react";
 import {
-  FlatList,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    FlatList,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
+    useAnimatedStyle,
+    useSharedValue,
+    withSpring,
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScreenHeader } from "../../components/ScreenHeader";
@@ -20,6 +21,14 @@ import { NoteEditor } from "../../features/notes/NoteEditor";
 import { Note, useNotesStore } from "../../store/notesStore";
 import { Colors } from "../../utils/theme";
 
+type TaskFilter = "all" | "active" | "completed";
+
+const FILTERS: { label: string; value: TaskFilter }[] = [
+  { label: "All", value: "all" },
+  { label: "Active", value: "active" },
+  { label: "Completed", value: "completed" },
+];
+
 export default function NotesScreen() {
   const {
     notes,
@@ -27,11 +36,13 @@ export default function NotesScreen() {
     loadNotes,
     addNote,
     updateNote,
+    toggleNote,
     deleteNote,
   } = useNotesStore();
   const [editorVisible, setEditorVisible] = useState(false);
   const [editingNote, setEditingNote] = useState<Note | null>(null);
   const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState<TaskFilter>("all");
 
   const fabScale = useSharedValue(1);
   const fabStyle = useAnimatedStyle(() => ({
@@ -42,13 +53,21 @@ export default function NotesScreen() {
     loadNotes();
   }, [loadNotes]);
 
-  const filtered = search.trim()
+  const filteredBySearch = search.trim()
     ? notes.filter(
         (n) =>
           n.title.toLowerCase().includes(search.toLowerCase()) ||
           n.content.toLowerCase().includes(search.toLowerCase())
       )
     : notes;
+
+  const filtered = filteredBySearch.filter(
+    (n) =>
+      filter === "all" ||
+      (filter === "active" ? !n.completed : n.completed)
+  );
+
+  const completedCount = notes.filter((n) => n.completed).length;
 
   const handleAdd = () => {
     fabScale.value = withSpring(0.9, { damping: 20, stiffness: 400 }, () => {
@@ -64,19 +83,19 @@ export default function NotesScreen() {
     setEditorVisible(true);
   };
 
-  const handleSave = (title: string, content: string) => {
+  const handleSave = (title: string, content: string, completed: boolean) => {
     if (editingNote) {
-      updateNote(editingNote.id, title, content);
+      updateNote(editingNote.id, title, content, completed);
     } else {
-      addNote(title, content);
+      addNote(title, content, completed);
     }
   };
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
       <ScreenHeader
-        title="Notes"
-        subtitle={`${notes.length} note${notes.length !== 1 ? "s" : ""}`}
+        title="Tasks"
+        subtitle={`${completedCount}/${notes.length} done`}
       />
 
       {storageError ? (
@@ -85,12 +104,35 @@ export default function NotesScreen() {
         </View>
       ) : null}
 
+      <ScrollView
+        horizontal
+        style={styles.filtersScroll}
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.filtersContainer}
+      >
+        {FILTERS.map((tab) => (
+          <TouchableOpacity
+            key={tab.value}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setFilter(tab.value);
+            }}
+            style={[styles.filterTab, filter === tab.value && styles.filterTabActive]}
+            activeOpacity={0.7}
+          >
+            <Text style={[styles.filterLabel, filter === tab.value && styles.filterLabelActive]}>
+              {tab.label}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+
       {/* Search */}
       <View style={styles.searchContainer}>
         <Text style={styles.searchIcon}>🔍</Text>
         <TextInput
           style={styles.searchInput}
-          placeholder="Search notes..."
+          placeholder="Search tasks..."
           placeholderTextColor={Colors.textMuted}
           value={search}
           onChangeText={setSearch}
@@ -98,13 +140,14 @@ export default function NotesScreen() {
         />
       </View>
 
-      {/* Notes List */}
+      {/* Tasks List */}
       <FlatList
         data={filtered}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <NoteCard
             note={item}
+            onToggle={toggleNote}
             onDelete={deleteNote}
             onPress={handleEdit}
           />
@@ -115,10 +158,10 @@ export default function NotesScreen() {
           <View style={styles.empty}>
             <Text style={styles.emptyIcon}>📓</Text>
             <Text style={styles.emptyTitle}>
-              {search ? "No matching notes" : "No notes yet"}
+              {search ? "No matching tasks" : "No tasks yet"}
             </Text>
             <Text style={styles.emptySubtitle}>
-              {search ? "Try a different search" : "Tap + to capture your first thought"}
+              {search ? "Try a different search" : "Tap + to add your first task"}
             </Text>
           </View>
         }
@@ -147,6 +190,40 @@ export default function NotesScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: Colors.bgPrimary },
+  filtersScroll: {
+    flexGrow: 0,
+    maxHeight: 56,
+  },
+  filtersContainer: {
+    paddingHorizontal: 20,
+    paddingBottom: 8,
+    gap: 8,
+    alignItems: "center",
+  },
+  filterTab: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 50,
+    backgroundColor: Colors.bgElevated,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    flexShrink: 0,
+    alignSelf: "flex-start",
+  },
+  filterTabActive: {
+    backgroundColor: `${Colors.accentAmber}22`,
+    borderColor: Colors.accentAmber,
+  },
+  filterLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: Colors.textSecondary,
+  },
+  filterLabelActive: {
+    color: Colors.accentAmber,
+  },
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",

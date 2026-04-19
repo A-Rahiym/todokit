@@ -51,10 +51,10 @@ export const ToolCards = [
   },
   {
     id: "notes",
-    title: "Notes",
-    subtitle: "Capture thoughts & ideas",
+    title: "Tasks",
+    subtitle: "Track & complete your work",
     gradient: ["#D9F99D", "#BBF7D0"] as [string, string],
-    icon: "📝",
+    icon: "✅",
     route: "/(tabs)/notes",
   },
 ];
